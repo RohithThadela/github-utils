@@ -2,7 +2,7 @@ name: Contribution Graph Action
 
 on:
   schedule:
-    - cron: '0 12 * * *' # Runs daily at midnight
+    - cron: '0 0 * * *' # Runs daily at midnight
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -13,7 +13,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Generate contributions
-        uses: ./
-        with:
-          backfill: true # Add commits for past dates
-          skip_weekends: true # Skip commits on weekends
+        uses: your-username/github-contribution-graph-action@main # Use your forked repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          BACKFILL: true # Add commits for past dates
+          SKIP_WEEKENDS: true # Skip commits on weekends
