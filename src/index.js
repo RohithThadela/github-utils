@@ -23,9 +23,16 @@ const localPath = './clone';
 const repoPath = `https://${env.GITHUB_ACTOR}:${env.GITHUB_TOKEN}@${env.GIT_HOST}/${env.GITHUB_REPOSITORY}`;
 const secondLine = 'Committed via https://github.com/marketplace/actions/autopopulate-your-contribution-graph';
 
-// Determine the number of days to backfill
-const maxDays = backfill ? env.MAX_DAYS : 1; // If backfill is false, only commit for today
-const dayOffsets = [...Array(maxDays).keys()];
+// Define the start date (September 13, 2024)
+const startDate = new Date('2024-09-13'); // Replace with your desired start date
+const today = new Date();
+
+// Calculate the number of days between the start date and today
+const timeDiff = today.getTime() - startDate.getTime();
+const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+
+// Generate an array of day offsets
+const dayOffsets = [...Array(daysDiff).keys()];
 
 await fs.mkdir(localPath);
 
@@ -40,7 +47,7 @@ await git(localPath).addConfig('user.name', env.GITHUB_ACTOR);
 await git(localPath).addConfig('user.email', env.GIT_EMAIL);
 
 await dayOffsets
-  .map((dayOffset) => subDays(dayOffset, fromUnixTime(env.ORIGIN_TIMESTAMP)))
+  .map((dayOffset) => subDays(dayOffset, today)) // Generate dates from today backwards
   .filter((day) => !(skipWeekends && isWeekend(day))) // Skip weekends if enabled
   .map((/** @type {Date} */ day) => {
     const commitsToMake = getRandomInt(env.MIN_COMMITS_PER_DAY, env.MAX_COMMITS_PER_DAY);
